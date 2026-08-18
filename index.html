@@ -152,18 +152,18 @@ footer{text-align:center;padding:28px 20px;border-top:1px solid var(--gold-borde
         <label>Model</label>
         <select id="pg-model" onchange="updateStorage();updateRepairs();showPrice();">
           <option value="">— Select Model —</option>
-          <option value="iPhone 13 Pro Max|370|355">iPhone 13 Pro Max</option>
+          <option value="iPhone 13 Pro Max|350|325">iPhone 13 Pro Max</option>
           <option value="iPhone 14 Pro|330|315">iPhone 14 Pro</option>
           <option value="iPhone 14 Pro Max|445|420">iPhone 14 Pro Max</option>
-          <option value="iPhone 15|370|355">iPhone 15</option>
-          <option value="iPhone 15 Pro|505|480">iPhone 15 Pro</option>
-          <option value="iPhone 15 Pro Max|590|572">iPhone 15 Pro Max</option>
-          <option value="iPhone 16|500|475">iPhone 16</option>
-          <option value="iPhone 16 Pro|615|595">iPhone 16 Pro</option>
-          <option value="iPhone 16 Pro Max|740|715">iPhone 16 Pro Max</option>
-          <option value="iPhone 17|715|700">iPhone 17</option>
-          <option value="iPhone 17 Pro|970|940">iPhone 17 Pro</option>
-          <option value="iPhone 17 Pro Max|1165|1080">iPhone 17 Pro Max</option>
+          <option value="iPhone 15|360|335">iPhone 15</option>
+          <option value="iPhone 15 Pro|470|445">iPhone 15 Pro</option>
+          <option value="iPhone 15 Pro Max|590|565">iPhone 15 Pro Max</option>
+          <option value="iPhone 16|490|465">iPhone 16</option>
+          <option value="iPhone 16 Pro|640|615">iPhone 16 Pro</option>
+          <option value="iPhone 16 Pro Max|770|745">iPhone 16 Pro Max</option>
+          <option value="iPhone 17|710|685">iPhone 17</option>
+          <option value="iPhone 17 Pro|990|965">iPhone 17 Pro</option>
+          <option value="iPhone 17 Pro Max|1140|1115">iPhone 17 Pro Max</option>
         </select>
       </div>
       <div class="fg">
@@ -179,6 +179,13 @@ footer{text-align:center;padding:28px 20px;border-top:1px solid var(--gold-borde
           <option value="mint">Mint / Like New</option>
           <option value="fair">Fair</option>
           <option value="poor">Poor</option>
+        </select>
+      </div>
+      <div class="fg full">
+        <label>Screen Message</label>
+        <select id="pg-screenmsg" onchange="showPrice()">
+          <option value="0">Removed / Genuine</option>
+          <option value="20">Shows Warning (−$20)</option>
         </select>
       </div>
       <div class="fg full">
@@ -324,6 +331,13 @@ footer{text-align:center;padding:28px 20px;border-top:1px solid var(--gold-borde
         </select>
       </div>
       <div class="fg full">
+        <label>Screen Message (if display replaced)</label>
+        <select id="lg-screenmsg">
+          <option value="none">No message — reads genuine</option>
+          <option value="shows">Shows "Unknown Part" in Settings</option>
+        </select>
+      </div>
+      <div class="fg full">
         <label>Condition Notes (optional)</label>
         <textarea id="lg-condition-notes" placeholder="e.g. front screen mint, sides have light wear, small dent on bottom corner"></textarea>
       </div>
@@ -416,18 +430,18 @@ const storageOptions = {
 };
 
 const conditionAdj = {
-  "iPhone 13 Pro Max": {mint:20, good:0, fair:-30, poor:-55},
-  "iPhone 14 Pro":     {mint:20, good:0, fair:-30, poor:-55},
+  "iPhone 13 Pro Max": {mint:25, good:0, fair:-30, poor:-55},
+  "iPhone 14 Pro":     {mint:25, good:0, fair:-30, poor:-55},
   "iPhone 14 Pro Max": {mint:25, good:0, fair:-35, poor:-60},
-  "iPhone 15":         {mint:20, good:0, fair:-30, poor:-55},
+  "iPhone 15":         {mint:25, good:0, fair:-30, poor:-55},
   "iPhone 15 Pro":     {mint:25, good:0, fair:-35, poor:-60},
   "iPhone 15 Pro Max": {mint:25, good:0, fair:-40, poor:-65},
   "iPhone 16":         {mint:25, good:0, fair:-35, poor:-60},
-  "iPhone 16 Pro":     {mint:30, good:0, fair:-40, poor:-65},
-  "iPhone 16 Pro Max": {mint:30, good:0, fair:-45, poor:-70},
-  "iPhone 17":         {mint:30, good:0, fair:-40, poor:-65},
-  "iPhone 17 Pro":     {mint:35, good:0, fair:-45, poor:-75},
-  "iPhone 17 Pro Max": {mint:35, good:0, fair:-50, poor:-80},
+  "iPhone 16 Pro":     {mint:25, good:0, fair:-40, poor:-65},
+  "iPhone 16 Pro Max": {mint:25, good:0, fair:-45, poor:-70},
+  "iPhone 17":         {mint:25, good:0, fair:-40, poor:-65},
+  "iPhone 17 Pro":     {mint:25, good:0, fair:-45, poor:-75},
+  "iPhone 17 Pro Max": {mint:25, good:0, fair:-50, poor:-80},
 };
 
 let mode = 'avg';
@@ -494,7 +508,8 @@ function showPrice() {
   const ca = conditionAdj[currentModel] || {mint:25, good:0, fair:-35, poor:-60};
   const condAdjVal = condVal === 'mint' ? ca.mint : condVal === 'fair' ? ca.fair : condVal === 'poor' ? ca.poor : 0;
 
-  const listPrice = basePrice + storageAdj + condAdjVal;
+  const screenMsg = parseFloat(document.getElementById("pg-screenmsg")?.value) || 0;
+  const listPrice = basePrice + storageAdj + condAdjVal - screenMsg;
 
   const repairSel = document.getElementById('pg-repair');
   const repairCost = parseFloat(repairSel.value) || 0;
@@ -717,6 +732,7 @@ function generate(){
     battery=document.getElementById('lg-battery').value,
     repair=document.getElementById('lg-repair').value,
     notes=document.getElementById('lg-condition-notes').value.trim();
+  const screenMsgState=document.getElementById('lg-screenmsg')?document.getElementById('lg-screenmsg').value:'none';
 
   if(!model||!storage||!condition||!carrier){alert('Please complete all required fields.');return;}
 
@@ -745,9 +761,7 @@ This isn't a phone someone just wiped and listed. Every Avuex device is inspecte
 
 ${isRepaired ? 'What was serviced: ' : 'Condition: '}${servicedLine[repair]}
 
-${condLine}
-
-Battery: ${getBatteryShort(battery) || 'Tested and holds a healthy charge'}
+${condLine}${screenMsgState==='shows' ? '\n\nNote on display: This device shows an \"Unknown Part\" message in Settings because the screen was professionally replaced. This is purely informational — it does NOT affect functionality in any way. True Tone, Face ID, brightness, touch, and all display features work perfectly. It simply appears as a notice in Settings, which is standard for any replaced iPhone display.' : ''}\n\nBattery: ${getBatteryShort(battery) || 'Tested and holds a healthy charge'}
 Carrier: ${carShort[carrier] || 'Fully unlocked'}
 IMEI: Clean — no flags, no issues, activates instantly
 
