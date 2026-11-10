@@ -839,11 +839,16 @@ function lgComputePrice(model, storage, condition, wear, screenMsgState, battery
     price = good - 40;
   }
   if(screenMsgState==='shows') price -= 30;
-  // +$15 battery premium when battery health is 90% or higher (or newly replaced)
+  // Battery adjustment ladder
   let bPct = 0;
   if(battery==='New (Replaced)') bPct = 100;
   else if(battery) bPct = parseInt(battery) || 0;
-  if(bPct >= 90) price += 15;
+  if(battery){ // only adjust when a battery value is selected
+    if(bPct >= 90) price += 15;
+    else if(bPct >= 85) price += 0;
+    else if(bPct >= 80) price -= 10;
+    else price -= 25;              // under 80%
+  }
   return Math.round(price*100)/100;
 }
 function lgConditionWording(condition, wear){
