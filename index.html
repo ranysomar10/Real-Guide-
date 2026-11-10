@@ -898,22 +898,41 @@ function generate(){
   const conditionSentence = notes ? buildConditionFromNotes(condition, notes) : lgConditionWording(condition, wear);
   const carrierLabel=carrier.includes('Unlocked')?'Unlocked':carrier;
   const isRepaired = repair && repair !== 'None';
-  // Condition name for TITLE: never claim "Excellent" when wear is present
+  // ===== SMART TITLE SCHEME =====
+  // Lead with mint callouts; never put a scary word ("Fair") in the title.
   let titleTag;
-  if (condition==='Mint') titleTag = (wear==='allmint') ? 'Mint' : 'Mint - Minor Wear';
-  else if (condition==='Good') titleTag = 'Good Condition';
-  else titleTag = 'Fair Condition';
+  if (condition==='Mint'){
+    if (wear==='allmint') titleTag = 'Mint Condition';
+    else if (wear==='screenwear') titleTag = 'Mint Frame';   // frame mint, screen has light wear
+    else titleTag = 'Near Mint';                              // framewear: screen mint, minor frame wear
+  } else if (condition==='Good'){
+    if (wear==='screenmint') titleTag = 'Mint Screen';
+    else if (wear==='framemint') titleTag = 'Mint Frame';
+    else if (wear==='screenbackmint') titleTag = 'Mint Screen';
+    else titleTag = '';                                       // general wear: no condition word
+  } else { // Fair
+    if (wear==='screenmint') titleTag = 'Mint Screen';
+    else if (wear==='framemint') titleTag = 'Mint Frame';
+    else if (wear==='screenbackmint') titleTag = 'Mint Screen';
+    else titleTag = 'Fully Tested';                           // avoid "Fair" in the title
+  }
   const base = `Apple ${model} ${storage} ${carrierLabel}`;
 
-  // Battery >=95% (or New) replaces "Fast Shipping" with the battery figure
+  // Battery: show "90%+ Battery" when >=90, "New Battery" if replaced
   let battPct = 0;
   if (battery==='New (Replaced)') battPct = 100;
   else if (battery) battPct = parseInt(battery) || 0;
-  const lastTag = (battPct>90) ? `${battery==='New (Replaced)'?'New Battery':battery+' Battery'}` : 'Fast Shipping';
+  const battTag = (battery==='New (Replaced)') ? 'New Battery'
+                 : (battPct>=90) ? '90%+ Battery' : '';
 
-  let title = `${base} | ${titleTag} | ${lastTag}`;
-  if (title.length > 80) title = `${base} | ${titleTag}`;
-  if (title.length > 80) title = `${base} | ${titleTag.replace(' Condition','')}`;
+  // Assemble: base | [titleTag] | [battery] | [Fast Ship filler if room]
+  const mids = [titleTag, battTag].filter(Boolean);
+  let title = [base, ...mids].join(' | ');
+  // add Fast Ship filler only if it still fits under 80
+  if ((title + ' | Fast Ship').length <= 80) title = title + ' | Fast Ship';
+  // trim if over 80: drop filler, then battery, then condition
+  if (title.length > 80) title = [base, ...mids].join(' | ');
+  if (title.length > 80) title = titleTag ? `${base} | ${titleTag}` : (battTag ? `${base} | ${battTag}` : base);
   if (title.length > 80) title = base.slice(0, 80);
   document.getElementById('title-text').textContent = title;
 
