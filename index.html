@@ -910,8 +910,12 @@ function generate(){
   let battPct = 0;
   if (battery==='New (Replaced)') battPct = 100;
   else if (battery) battPct = parseInt(battery) || 0;
-  const battTag = (battery==='New (Replaced)') ? 'New Battery'
-                 : (battPct>=90) ? '90%+ Battery' : '';
+  // Tiered battery tag: flex the exact number when it's high, cast a wide net at 90-94%
+  let battTag = '';
+  if (battery==='New (Replaced)') battTag = 'New Battery';
+  else if (battPct>=95) battTag = battPct + '% Battery';   // 95-99: show exact as a flex
+  else if (battPct>=90) battTag = '90%+ Battery';          // 90-94: search-friendly
+  // under 90: no battery tag
 
   // Assemble: base | [titleTag] | [battery] | [Fast Ship filler if room]
   const mids = [titleTag, battTag].filter(Boolean);
