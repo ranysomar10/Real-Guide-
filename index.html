@@ -898,24 +898,12 @@ function generate(){
   const conditionSentence = notes ? buildConditionFromNotes(condition, notes) : lgConditionWording(condition, wear);
   const carrierLabel=carrier.includes('Unlocked')?'Unlocked':carrier;
   const isRepaired = repair && repair !== 'None';
-  // ===== SMART TITLE SCHEME =====
-  // Lead with mint callouts; never put a scary word ("Fair") in the title.
+  // ===== TITLE CONDITION LABEL (bumped one level up) =====
+  // Fair -> Good, Good -> Great, Mint-with-wear -> Excellent, Mint(all mint) -> Mint
   let titleTag;
-  if (condition==='Mint'){
-    if (wear==='allmint') titleTag = 'Mint Condition';
-    else if (wear==='screenwear') titleTag = 'Mint Frame';   // frame mint, screen has light wear
-    else titleTag = 'Near Mint';                              // framewear: screen mint, minor frame wear
-  } else if (condition==='Good'){
-    if (wear==='screenmint') titleTag = 'Mint Screen';
-    else if (wear==='framemint') titleTag = 'Mint Frame';
-    else if (wear==='screenbackmint') titleTag = 'Mint Screen';
-    else titleTag = '';                                       // general wear: no condition word
-  } else { // Fair
-    if (wear==='screenmint') titleTag = 'Mint Screen';
-    else if (wear==='framemint') titleTag = 'Mint Frame';
-    else if (wear==='screenbackmint') titleTag = 'Mint Screen';
-    else titleTag = 'Fully Tested';                           // avoid "Fair" in the title
-  }
+  if (condition==='Mint') titleTag = (wear==='allmint') ? 'Mint Condition' : 'Excellent Condition';
+  else if (condition==='Good') titleTag = 'Great Condition';
+  else titleTag = 'Good Condition'; // Fair
   const base = `Apple ${model} ${storage} ${carrierLabel}`;
 
   // Battery: show "90%+ Battery" when >=90, "New Battery" if replaced
