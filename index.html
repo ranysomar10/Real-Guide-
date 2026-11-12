@@ -937,7 +937,13 @@ function generate(){
 
   // Repair-reliability trust line — repaired phones only (honest, based on real experience)
   const reliabilityLine = isRepaired
-    ? "\n\n🔧 Repair reliability I stand behind: These repairs aren't a gamble — I've tested them personally, and my own family has used repaired phones like these long-term with zero issues. Combined with my track record on here, you're buying from someone who actually trusts what he sells."
+    ? "\n\n🔧 Repair reliability you can trust: Every repair is tested thoroughly and holds up great long-term — these aren't a gamble. Backed by my track record on here, you're buying from someone who stands behind the work."
+    : '';
+
+  // Screen-type repairs that are CLEAN (no "Unknown Part" warning) — call it out as an advantage
+  const screenRepairs = ['LCD Replacement','LCD + Back Glass','Front Glass','Both Glass'];
+  const cleanScreenLine = (isRepaired && screenRepairs.includes(repair) && screenMsgState!=='shows')
+    ? "\n\n✅ No Settings warnings: Unlike many other repaired phones, this one shows NO \"Unknown Part\" message and NO repair history in Settings — it reads completely clean. (Check the Settings > General > About photo to verify.)"
     : '';
 
   const desc=`${headline}
@@ -946,7 +952,7 @@ function generate(){
 
 This isn't a phone someone just wiped and listed. Every Avuex device is inspected, tested, and verified before it ever ships. You're getting a phone that works like it should — guaranteed.${valueLine}
 
-${isRepaired ? 'What was serviced: ' : 'Condition: '}${screenMsgState==='shows' ? servicedLine[repair].replace(' No error messages. No warning screens.','').replace(' No error messages.','') : servicedLine[repair]}${reliabilityLine}
+${isRepaired ? 'What was serviced: ' : 'Condition: '}${screenMsgState==='shows' ? servicedLine[repair].replace(' No error messages. No warning screens.','').replace(' No error messages.','') : servicedLine[repair]}${cleanScreenLine}${reliabilityLine}
 
 ${condLine}${screenMsgState==='shows' ? '\n\nNote on display: This device shows an \"Unknown Part\" message in Settings because the screen was professionally replaced. This is purely informational — it does NOT affect functionality in any way. True Tone, Face ID, brightness, touch, and all display features work perfectly. It simply appears as a notice in Settings, which is standard for any replaced iPhone display.' : ''}\n\n📸 Please review all photos carefully — they show the exact device you'll receive.\n\nBattery: ${getBatteryShort(battery) || 'Tested and holds a healthy charge'}
 Carrier: ${carShort[carrier] || 'Fully unlocked'}
